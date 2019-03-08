@@ -67,7 +67,7 @@ export default class Map extends Component {
                     />
                 )}
                 </MapView> 
-                <Search onLocationSelected={ this.handleLocationSelected}/>
+                <Search onLocationSelected={ this.handleLocationSelected }/>
             </View>
         );
     }
