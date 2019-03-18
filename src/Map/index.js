@@ -1,8 +1,14 @@
-import React,  { Component } from 'react';
-import { View } from 'react-native';
-import MapView from 'react-native-maps';
+import React,  { Component, Fragment } from 'react';
+import { View, Text } from 'react-native';
+import MapView,  { Marker } from 'react-native-maps';
+import { getPixelSize } from '../utils';
+
 import Search from '../Search/index';
 import Directions from '../Directions/index';
+
+import markerImage from '../assets/marker.png';
+
+import { LocationBox, LocationText, LocationTimeBox, LocationTimeText, LocationTimeTextSmall } from '../Map/styles';
 
 export default class Map extends Component {
     state = {
@@ -18,6 +24,7 @@ export default class Map extends Component {
                     latitudeDelta: 0.0143,
                     longitudeDelta: 0.0134,
                 }})
+                console.log('-------', coords.latitude);
             }, //sucesso,
             (erro) => {console.log(erro)}, //erro
             {
@@ -53,21 +60,61 @@ export default class Map extends Component {
                     }}
                     showsUserLocation
                     loadingEnabled
+                    ref={el => this.MapView = el}
                 >
                 { destination && (
-                    <Directions 
-                        origin={{
-                            latitude: -29.5820061, 
-                            longitude: -51.0834943,
-                            atitudeDelta: 0.0143,
-                            longitudeDelta: 0.0134
-                        }} 
-                        destination={destination}
-                        onReady={() => {}}
-                    />
+                    <Fragment>
+                        <Directions 
+                            origin={{
+                                latitude: -29.5820061, 
+                                longitude: -51.0834943,
+                                atitudeDelta: 0.0143,
+                                longitudeDelta: 0.0134
+                            }} 
+                            destination={destination}
+                            onReady={result => {
+                                this.MapView.fitToCoordinates(result.coordinates,  {
+                                    edgePadding: {
+                                        right: getPixelSize(50),
+                                        left: getPixelSize(50), 
+                                        top: getPixelSize(50),
+                                        bottom: getPixelSize(50)
+                                    }
+                                })
+                            }}
+                        />
+                        <Marker
+                            coordinate={destination}
+                            //anchor={{ x: 0, y: 0 }}
+                            image={markerImage}
+                        >
+                            <LocationBox>
+                                <LocationText>{destination.title}</LocationText>
+                            </LocationBox>
+                        </Marker>
+
+                        <Marker
+                            coordinate={{
+                                latitude: -29.5820061, 
+                                longitude: -51.0834943,
+                                atitudeDelta: 0.0143,
+                                longitudeDelta: 0.0134
+                            }}
+                            //anchor={{ x: 0, y: 0 }}
+                            image={markerImage}
+                        >
+                             <LocationBox>
+                                <LocationTimeBox>
+                                    <LocationTimeText>31</LocationTimeText>
+                                    <LocationTimeTextSmall>MIN</LocationTimeTextSmall>
+                                </LocationTimeBox>
+                                <LocationText> R. Otto Engelmman, 311</LocationText>
+                            </LocationBox>
+                        </Marker>
+                    </Fragment>
                 )}
                 </MapView> 
-                <Search onLocationSelected={ this.handleLocationSelected }/>
+                <Search onLocationSelected={ this.handleLocationSelected}/>
             </View>
         );
     }
